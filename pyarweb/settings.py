@@ -18,17 +18,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'c2*wzebi9p3vola_tamd7zu4=4(2^9m$v0vdj(5_ybhhw6t629'
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Sites framework
 SITE_ID = 1
-
-TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
-TEMPLATE_DEBUG = True
-
 
 ALLOWED_HOSTS = []
 
@@ -48,12 +44,12 @@ DISQUS_WEBSITE_SHORTNAME = 'PyAr'
 
 INSTALLED_APPS = (
     'django.contrib.admin',
-    'django.contrib.sites',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     # pyarweb apps
     'community',
@@ -121,8 +117,12 @@ WSGI_APPLICATION = 'pyarweb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ['DB_NAME'],
+        'USER': os.environ['DB_USER'],
+        'PASSWORD': os.environ['DB_PASS'],
+        'HOST': os.environ['DB_SERVICE'],
+        'PORT': os.environ['DB_PORT']
     }
 }
 
@@ -155,22 +155,32 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    # Required by allauth template tags
-    "django.core.context_processors.request",
-    # allauth specific context processors
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': (os.path.join(BASE_DIR, 'templates'),),
+       	'OPTIONS': {
+            'context_processors': [
+				#  allauth specific context processors
+				# "allauth.account.context_processors.account",
+				# "allauth.socialaccount.context_processors.socialaccount",
 
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.media",
-    'django.core.context_processors.static',
-    "django.core.context_processors.request",
-    "django.core.context_processors.i18n",
-    "django.contrib.messages.context_processors.messages",
-    "planet.context_processors.context"
-)
+				"django.contrib.auth.context_processors.auth",
+				"django.core.context_processors.debug",
+				"django.core.context_processors.media",
+				'django.core.context_processors.static',
+				"django.core.context_processors.request",
+				"django.core.context_processors.i18n",
+				"django.contrib.messages.context_processors.messages",
+				"planet.context_processors.context",
+
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
+            ],
+        },
+    },
+]
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
